@@ -13,6 +13,7 @@ export type UserDocument = HydratedDocument<User>;
       delete ret.createdAt;
       delete ret.updatedAt;
       delete ret.password;
+      delete ret.role;
       delete ret.authProvider;
       delete ret.__v;
     },

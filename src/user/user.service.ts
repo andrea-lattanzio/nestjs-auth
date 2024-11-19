@@ -19,6 +19,10 @@ export class UserService {
     return existingUser;
   }
 
+  async list(): Promise<IUser[]> {
+    return await this.userModel.find();
+  }
+
   async create(user: IUser): Promise<IUser> {
     return await this.userModel.create(user);
   }
