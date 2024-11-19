@@ -4,6 +4,7 @@ import { AuthProvider, IUser } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
 import * as bcrypt from 'bcrypt';
 import { LoginResponseDTO, RegisterRequestDTO } from './auth.dto';
+import { Profile } from 'passport-google-oauth20';
 
 @Injectable()
 export class AuthService {
@@ -33,7 +34,6 @@ export class AuthService {
       name: validatedUser.name,
       lastname: validatedUser.lastname,
       email: validatedUser.email,
-      role: validatedUser.role,
     };
 
     return { token: this.jwtSrv.sign(payload), user: user };
@@ -51,5 +51,19 @@ export class AuthService {
     }
     await this.userSrv.create(newUser);
     return this.login(newUser);
+  }
+
+  async validateGoogleUser(profile: Profile): Promise<IUser> {
+    const { name, emails } = profile;
+    const user = await this.userSrv.findOneByEmail(emails[0].value);
+    if (user) return user;
+    const newUser: IUser = {
+      name: name.givenName,
+      lastname: name.familyName,
+      email: emails[0].value,
+      authProvider: AuthProvider.GOOGLE,
+    };
+    const savedUser = await this.userSrv.create(newUser);
+    return savedUser;
   }
 }
